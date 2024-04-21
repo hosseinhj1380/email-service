@@ -4,7 +4,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from imap_tools import MailBox
 from email import message_from_string
-
+EMAIL_HOST =""
+EMAIL_PORT=""
 
 class Mail:
     def __init__(self, email, password) -> None:
@@ -20,7 +21,7 @@ class Mail:
         msg.attach(MIMEText(body, "plain"))
 
         try:
-            server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+            server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
             server.starttls()
             # server.ehlo()
             server.login(self.email, self.password)
@@ -37,7 +38,7 @@ class Mail:
 
     def get_inbox_mails(self, input_search_type):
         try:
-            mail = imaplib.IMAP4_SSL(settings.EMAIL_HOST)
+            mail = imaplib.IMAP4_SSL(EMAIL_HOST)
 
             mail.login(
                 self.email,
@@ -84,7 +85,7 @@ class Mail:
 
     def get_outbox_mails(self, input_search_type, mail_selection):
         try:
-            mail = imaplib.IMAP4_SSL(settings.EMAIL_HOST)
+            mail = imaplib.IMAP4_SSL(EMAIL_HOST)
 
             mail.login(
                 self.email,
@@ -133,12 +134,12 @@ class Mail:
     def save_as_draft_mail(self, subject, body, recipient_email):
         msg = MIMEMultipart()
 
-        msg["From"] = settings.EMAIL_HOST_USER
+        msg["From"] = EMAIL_HOST_USER
         msg["To"] = ", ".join(recipient_email)
         msg["Subject"] = subject
         msg.attach(MIMEText(body, "plain"))
         try:
-            imap_server = imaplib.IMAP4_SSL(settings.EMAIL_HOST)
+            imap_server = imaplib.IMAP4_SSL(EMAIL_HOST)
             imap_server.login(self.email, self.password)
 
             imap_server.append("Drafts", None, None, msg.as_bytes())
@@ -156,7 +157,7 @@ class Mail:
 
     def move_mail_to_another_box(self, email_uid, source, dest):
         try:
-            with MailBox(settings.EMAIL_HOST).login(
+            with MailBox(EMAIL_HOST).login(
                 self.email, self.password, source
             ) as mailbox:
                 copy_result, delete_result = mailbox.move(mailbox.uids(email_uid), dest)
@@ -172,7 +173,7 @@ class Mail:
 
     def copy_mail_to_another_box(self, email_uid, source, dest):
         try:
-            with MailBox(settings.EMAIL_HOST).login(
+            with MailBox(EMAIL_HOST).login(
                 self.email, self.password, source
             ) as mailbox:
                 copy_result, delete_result = mailbox.copy(mailbox.uids(email_uid), dest)
@@ -202,8 +203,8 @@ class Mail:
         body = body
         message.attach(MIMEText(body, "plain"))
 
-        smtp_server = settings.EMAIL_HOST
-        smtp_port = settings.EMAIL_PORT
+        smtp_server = EMAIL_HOST
+        smtp_port = EMAIL_PORT
 
         try:
             server = smtplib.SMTP(smtp_server, smtp_port)
@@ -226,7 +227,7 @@ class Mail:
     def mark_mail(self, mail_box, email_uid, mark, boolean):
 
         try:
-            server = imaplib.IMAP4_SSL(settings.EMAIL_HOST)
+            server = imaplib.IMAP4_SSL(EMAIL_HOST)
             server.login(self.email, self.password)
             server.select(mail_box)
             if boolean:
