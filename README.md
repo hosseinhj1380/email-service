@@ -1,2 +1,2 @@
 # email-service
-this repository is an email service that wrote with python 
+ready to use email-service package for connecting and do all actions on email server 
