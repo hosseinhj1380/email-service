@@ -329,3 +329,71 @@ class IMAPConnectionPool:
             return False, "error while fetching emails"
         finally:
             self.release_connection(mail)
+
+    def update_folder(self, old_folder, new_folder):
+        try:
+            # if " " in folder_name:
+            #     folder_name = f'"{folder_name}"'
+            # stat, count = self.imap_connection.select(folder_name)
+            # if stat:
+            #     return False , "old_folder_path is not available update "
+            
+            # self.imap_connection.close()
+            
+            # stat, res = self.create_folder(new_folder)
+            # if stat:
+
+            #     stat, res = self.delete_folder(old_folder)
+            #     if stat:
+
+            #         return True, "updated successfully "
+            #     return False , "old folder path is not available"
+
+            # return False, "Already exist"
+            stat,res=self.imap_connection.rename(old_folder,new_folder)
+        
+            if stat == "OK" :
+                return True , "updated successfully"
+            return False , "folder name is not available "
+        except Exception as e:
+            
+            return False, e
+
+    def delete_folder(self, folder_name):
+        
+        try:
+            if " " in folder_name:
+                folder_name = f'"{folder_name}"'
+            stat, count = self.imap_connection.select(folder_name)
+            # print(count)
+            if stat == "NO":
+                return False, "Folder not exist "
+            
+            if int(count[0].decode("utf-8")) > 0:
+
+                self.imap_connection.store("1:*", "+FLAGS", "\\Deleted")
+                self.imap_connection.expunge()
+
+            self.imap_connection.delete(folder_name)
+
+            return True, "deleted successfully "
+        except Exception as e:
+            print(e)
+            return False, " internal error while deleting "
+
+
+
+    def _encode_folder_name(self, fname):
+        final_name = []
+        name_parted = fname.split(" ")
+
+        if len(name_parted) > 1:
+
+            for part in name_parted:
+                final_name.append(imap_utf7.encode(part))
+
+            f_path = b" ".join(final_name)
+            return b'"' + f_path + b'"'
+
+        else:
+            return imap_utf7.encode(fname)
